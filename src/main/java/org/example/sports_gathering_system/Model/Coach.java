@@ -35,7 +35,8 @@ public class Coach {
     private String email; // check with password
 
     @NotBlank(message = "phoneNumber cannot be blank.")
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "phoneNumber must contain 10 to 15 digits.")
+    @Pattern(regexp = "^[0-9]{10,15}$",
+            message = "phoneNumber must contain 10 to 15 digits.")
     @Column(columnDefinition = "varchar(15) not null unique")
     private String phoneNumber; //search
 
@@ -74,13 +75,14 @@ public class Coach {
     private Integer yearsOfExperience; //filter for search
 
     @NotBlank(message = "Certificate Level cannot be blank.")
-    @Pattern(regexp = "^(Pro|Mid|Junior)$", message = "Certificate Level must be 'Junior', 'Mid' or 'Pro'.")
+    @Pattern(regexp = "^(Pro|Mid|Junior)$",
+            message = "Certificate Level must be 'Junior', 'Mid' or 'Pro'.")
     @Column(columnDefinition = "varchar(30) not null")
     private String certificateLevel; //filter for search
 
-    @NotBlank(message = "status cannot be blank.")
-    @Pattern(regexp = "^(Pending|Rejected|Accepted)$", message = "status must be 'Pending', 'Accepted' or 'Rejected'.")
-    @Column(columnDefinition = "varchar(20) not null")
+    @Pattern(regexp = "^(Pending|Rejected|Accepted)$",
+            message = "status must be 'Pending', 'Accepted' or 'Rejected'.")
+    @Column(columnDefinition = "varchar(20) not null default 'Pending'")
     private String status; //admin
 
     @Column(columnDefinition = "json")

@@ -16,6 +16,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message = "role cannot be blank.")
+    @Pattern(regexp = "^(Admin|User)$",
+            message = "role must be either 'Admin' or 'User'.")
+    @Column(columnDefinition = "varchar(10) not null")
+    private String role;
+
     @NotBlank(message = "username cannot be blank.")
     @Size(min = 3, message = "username's length must be at least '3'.")
     @Column(columnDefinition = "varchar(20) not null unique")
@@ -35,12 +41,14 @@ public class User {
     private String email; // check with password
 
     @NotBlank(message = "phoneNumber cannot be blank.")
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "phoneNumber must contain 10 to 15 digits.")
+    @Pattern(regexp = "^[0-9]{10,15}$",
+            message = "phoneNumber must contain 10 to 15 digits.")
     @Column(columnDefinition = "varchar(15) not null unique")
     private String phoneNumber; //search - add friend
 
     @NotBlank(message = "gender cannot be blank.")
-    @Pattern(regexp = "^(male|female)$", message = "gender must be 'male', 'female'.")
+    @Pattern(regexp = "^(male|female)$",
+            message = "gender must be 'male', 'female'.")
     @Column(columnDefinition = "varchar(10) not null")
     private String gender; //filter for activities - validation for activities
 
@@ -51,7 +59,6 @@ public class User {
 
     @NotNull(message = "height cannot be null.")
     @Min(value = 100, message = "height must be at least 100 cm.")
-    @Max(value = 250, message = "height must be at most 250 cm.")
     @Column(columnDefinition = "int not null")
     private Integer height; //ai recommendation
 
