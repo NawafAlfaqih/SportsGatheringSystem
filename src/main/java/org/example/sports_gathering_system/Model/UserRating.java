@@ -1,13 +1,12 @@
 package org.example.sports_gathering_system.Model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -31,13 +30,19 @@ public class UserRating {
     @Column(columnDefinition = "int not null")
     private Integer activityId;  // the activity where the rating happened - must check
 
-    @NotNull(message = "ratingValue cannot be null.")
-    @Min(value = 1, message = "ratingValue must be at least 1.")
-    @Max(value = 5, message = "ratingValue cannot be more than 5.")
+    @NotNull(message = "score cannot be null.")
+    @Min(value = 1, message = "score must be at least 1.")
+    @Max(value = 5, message = "score must be at most 5.")
     @Column(columnDefinition = "int not null")
-    private Integer ratingValue; //calculate total rating - sort by rate
+    private Integer score; //calculate total rating - sort by rate
 
-    @Size(max = 200, message = "comment cannot exceed 200 characters.")
+    @NotBlank(message = "comment cannot be blank.")
+    @Size(min = 3, message = "comment length must be at least 3.")
     @Column(columnDefinition = "varchar(200)")
     private String comment;
+
+    @NotNull(message = "date cannot be null.")
+    @PastOrPresent(message = "date must be in the past or present.")
+    @Column(columnDefinition = "datetime not null")
+    private LocalDateTime date; //sort by date newest/oldest
 }
