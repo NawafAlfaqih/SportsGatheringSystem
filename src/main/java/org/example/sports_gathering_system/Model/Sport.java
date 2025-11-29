@@ -29,9 +29,4 @@ public class Sport {
     @Column(columnDefinition = "varchar(10) not null")
     private String environment;
 
-    @NotBlank(message = "description cannot be blank.")
-    @Size(min = 10, message = "description length must be at least 10.")
-    @Column(columnDefinition = "varchar(200) not null")
-    private String description;
-
 }
