@@ -55,7 +55,7 @@ public class CoachActivity {
     @NotNull(message = "dateTime cannot be null.")
     @FutureOrPresent(message = "dateTime cannot be in the past.")
     @Column(columnDefinition = "datetime not null")
-    private LocalDateTime dateTime;
+    private LocalDateTime dateTime; //filter only new dates - no old
 
     @NotNull(message = "price cannot be null.")
     @Min(value = 0, message = "price must be 0 or greater.")
