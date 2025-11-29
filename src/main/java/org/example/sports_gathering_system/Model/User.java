@@ -80,13 +80,6 @@ public class User {
     private String sportIds;       // e.g., [1,3,5]
     //filter for search
 
-    @Column(columnDefinition = "json")
-    private String friendIds;      // e.g., [5,12,20]
-
-    @Column(columnDefinition = "json")
-    private String ratingIds;      // ratings made by this user
-    //total rating - filter for search high/low
-
     @Column(columnDefinition = "int")
     private Integer currentActivityId; //activity validation
 

@@ -57,10 +57,6 @@ public class UserActivity {
     @Column(columnDefinition = "datetime not null")
     private LocalDateTime dateTime; //filter by datetime
 
-    @NotNull(message = "isPrivate cannot be null.")
-    @Column(columnDefinition = "boolean not null")
-    private Boolean isPrivate; //check if private - validation with friends
-
     @Column(columnDefinition = "json")
     private String participantIds;   // list of user IDs - handle in service
 }

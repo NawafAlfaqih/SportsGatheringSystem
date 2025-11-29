@@ -88,9 +88,6 @@ public class Coach {
     @Column(columnDefinition = "json")
     private String sportIds; //filter for search
 
-    @Column(columnDefinition = "json")
-    private String ratingIds; //total rating - filter for search high/low
-
     @Column(columnDefinition = "int")
     private Integer currentActivityId; //activity validation
 }

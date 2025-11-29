@@ -62,10 +62,6 @@ public class CoachActivity {
     @Column(columnDefinition = "double not null")
     private Double price;   // filter by price
 
-    @NotNull(message = "isPrivate cannot be null.")
-    @Column(columnDefinition = "boolean not null")
-    private Boolean isPrivate;
-
     @Column(columnDefinition = "json")
     private String participantIds;   // list of user IDs
 
