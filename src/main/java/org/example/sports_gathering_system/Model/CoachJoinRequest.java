@@ -17,9 +17,9 @@ public class CoachJoinRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull(message = "coachId cannot be null.")
+    @NotNull(message = "userId cannot be null.")
     @Column(columnDefinition = "int not null")
-    private Integer coachId; //must check
+    private Integer userId; // user requesting to join
 
     @NotNull(message = "activityId cannot be null.")
     @Column(columnDefinition = "int not null")

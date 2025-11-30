@@ -8,6 +8,4 @@ import org.springframework.stereotype.Repository;
 public interface CoachJoinRequestRepository extends JpaRepository<CoachJoinRequest, Integer> {
 
     CoachJoinRequest findCoachJoinRequestById(Integer id);
-
-    CoachJoinRequest findCoachJoinRequestByCoachIdAndActivityId(Integer coachId, Integer activityId);
 }

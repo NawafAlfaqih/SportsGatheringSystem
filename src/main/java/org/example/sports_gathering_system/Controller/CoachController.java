@@ -16,8 +16,15 @@ public class CoachController {
 
     private final CoachService coachService;
 
-    @GetMapping("/get")
-    public ResponseEntity<?> getAllCoaches() {
+    @GetMapping("/get/admin/{adminId}")
+    public ResponseEntity<?> getAllCoaches(@PathVariable Integer adminId) {
+        Integer check = coachService.checkAdmin(adminId);
+        if (check == -1) {
+            return ResponseEntity.status(404).body(new ApiResponse("Admin was not found."));
+        }
+        if (check == -2) {
+            return ResponseEntity.status(400).body(new ApiResponse("This user is not an admin"));
+        }
         return ResponseEntity.status(200).body(coachService.getAllCoaches());
     }
 
@@ -33,8 +40,7 @@ public class CoachController {
 
     @PutMapping("/update/id/{id}/user/{userId}")
     public ResponseEntity<?> updateCoach(@PathVariable Integer id, @PathVariable Integer userId,
-                                         @RequestBody @Valid Coach coach,
-                                         Errors errors) {
+                                         @RequestBody @Valid Coach coach, Errors errors) {
         if (errors.hasErrors()) {
             String message = errors.getFieldError().getDefaultMessage();
             return ResponseEntity.status(400).body(new ApiResponse(message));

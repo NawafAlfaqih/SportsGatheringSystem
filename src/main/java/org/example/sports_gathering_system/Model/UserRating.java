@@ -41,7 +41,6 @@ public class UserRating {
     @Column(columnDefinition = "varchar(200)")
     private String comment;
 
-    @NotNull(message = "date cannot be null.")
     @PastOrPresent(message = "date must be in the past or present.")
     @Column(columnDefinition = "datetime not null")
     private LocalDateTime date; //sort by date newest/oldest

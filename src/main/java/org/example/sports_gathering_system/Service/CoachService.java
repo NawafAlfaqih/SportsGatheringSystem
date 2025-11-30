@@ -19,13 +19,12 @@ public class CoachService {
         return coachRepository.findAll();
     }
 
-    public Integer addCoach(Coach coach) {
+    public void addCoach(Coach coach) {
         coach.setStatus("Pending");
         coach.setSportIds("[]");
         coach.setCurrentActivityId(null);
 
         coachRepository.save(coach);
-        return 1;
     }
 
     public Integer updateCoach(Integer requesterId, Integer id, Coach coach) {

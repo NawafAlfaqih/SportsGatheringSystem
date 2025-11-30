@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.sports_gathering_system.Model.Coach;
 import org.example.sports_gathering_system.Model.CoachActivity;
 import org.example.sports_gathering_system.Model.CoachJoinRequest;
+import org.example.sports_gathering_system.Model.User;
 import org.example.sports_gathering_system.Repository.CoachActivityRepository;
 import org.example.sports_gathering_system.Repository.CoachJoinRequestRepository;
 import org.example.sports_gathering_system.Repository.CoachRepository;
@@ -24,24 +25,20 @@ public class CoachJoinRequestService {
     public List<CoachJoinRequest> getAllJoinRequests() { // admin only
         return coachJoinRequestRepository.findAll();
     }
-
     public Integer addJoinRequest(CoachJoinRequest request) {
-        Coach coach = coachRepository.findCoachById(request.getCoachId());
-        if (coach == null)
-            return -1; //coach not found
-
-        if (!"Accepted".equalsIgnoreCase(coach.getStatus()))
-            return -4; //coach not accepted
+        User user = userRepository.findUserById(request.getUserId());
+        if (user == null)
+            return -1; // user not found
 
         CoachActivity activity = coachActivityRepository.findCoachActivityById(request.getActivityId());
         if (activity == null)
-            return -2; //activity not found
+            return -2; // activity not found
 
-        // Check duplicate
+        // prevent duplicate requests
         for (CoachJoinRequest existing : coachJoinRequestRepository.findAll()) {
-            if (existing.getCoachId().equals(request.getCoachId()) &&
+            if (existing.getUserId().equals(request.getUserId()) &&
                     existing.getActivityId().equals(request.getActivityId())) {
-                return -3; //already requested
+                return -3; // already requested
             }
         }
 
@@ -50,20 +47,20 @@ public class CoachJoinRequestService {
         return 1;
     }
 
-    public Integer acceptRequest(Integer requesterId, Integer requestId) {
+        public Integer acceptRequest(Integer requesterId, Integer requestId) {
         CoachJoinRequest req = coachJoinRequestRepository.findCoachJoinRequestById(requestId);
         if (req == null)
-            return -2; //request not found
+            return -2; // request not found
 
         CoachActivity activity = coachActivityRepository.findCoachActivityById(req.getActivityId());
         if (activity == null)
-            return -3; //activity not found
+            return -3; // activity not found
 
         boolean isLeader = requesterId.equals(activity.getCoachId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
 
         if (!isLeader && !isAdmin)
-            return -1; //unauthorized
+            return -1; // unauthorized
 
         req.setStatus("Accepted");
         coachJoinRequestRepository.save(req);

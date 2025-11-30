@@ -31,11 +31,11 @@ public class CoachRating {
     @Column(columnDefinition = "int not null")
     private Integer activityId;  // the coach activity
 
-    @NotNull(message = "ratingValue cannot be null.")
-    @Min(value = 1, message = "ratingValue must be at least 1.")
-    @Max(value = 5, message = "ratingValue cannot be more than 5.")
+    @NotNull(message = "score cannot be null.")
+    @Min(value = 1, message = "score must be at least 1.")
+    @Max(value = 5, message = "score cannot be more than 5.")
     @Column(columnDefinition = "int not null")
-    private Integer ratingValue;
+    private Integer score;
 
     @Size(max = 200, message = "comment cannot exceed 200 characters.")
     @Column(columnDefinition = "varchar(200)")

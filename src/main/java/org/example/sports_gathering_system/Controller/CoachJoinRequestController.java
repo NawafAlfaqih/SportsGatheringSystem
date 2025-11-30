@@ -36,9 +36,7 @@ public class CoachJoinRequestController {
 
         Integer result = coachJoinRequestService.addJoinRequest(request);
         if (result == -1)
-            return ResponseEntity.status(404).body(new ApiResponse("Coach was not found."));
-        if (result == -4)
-            return ResponseEntity.status(400).body(new ApiResponse("Coach is not accepted."));
+            return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
         if (result == -2)
             return ResponseEntity.status(404).body(new ApiResponse("Activity was not found."));
         if (result == -3)
