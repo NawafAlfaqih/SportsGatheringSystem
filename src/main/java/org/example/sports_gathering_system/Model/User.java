@@ -16,6 +16,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "int")
+    private Integer favoriteSportId; //filter for search
+
+    @Column(columnDefinition = "int")
+    private Integer currentActivityId; //activity validation
+
     @NotBlank(message = "role cannot be blank.")
     @Pattern(regexp = "^(Admin|User)$",
             message = "role must be either 'Admin' or 'User'.")
@@ -75,12 +81,4 @@ public class User {
     @Size(min = 2, message = "city name length must be between 2 and 30.")
     @Column(columnDefinition = "varchar(30) not null")
     private String city; //filter for activities - validation for activity
-
-    @Column(columnDefinition = "json")
-    private String sportIds;       // e.g., [1,3,5]
-    //filter for search
-
-    @Column(columnDefinition = "int")
-    private Integer currentActivityId; //activity validation
-
 }

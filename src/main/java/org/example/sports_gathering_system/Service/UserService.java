@@ -19,7 +19,6 @@ public class UserService {
 
     public void addUser(User user) {
         user.setCurrentActivityId(null);
-        user.setSportIds("[]");
 
         userRepository.save(user);
     }
@@ -32,6 +31,7 @@ public class UserService {
         if (oldUser == null)
             return -2; //not found
 
+        oldUser.setFavoriteSportId(user.getFavoriteSportId());
         oldUser.setUsername(user.getUsername());
         oldUser.setPassword(user.getPassword());
         oldUser.setEmail(user.getEmail());
@@ -43,7 +43,6 @@ public class UserService {
         oldUser.setBio(user.getBio());
         oldUser.setCity(user.getCity());
 
-        oldUser.setSportIds(oldUser.getSportIds());
         oldUser.setCurrentActivityId(oldUser.getCurrentActivityId());
 
         userRepository.save(oldUser);

@@ -16,6 +16,13 @@ public class Coach {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull(message = "trainingSportId cannot be null.")
+    @Column(columnDefinition = "int not null")
+    private Integer trainingSportId; //filter for search
+
+    @Column(columnDefinition = "int")
+    private Integer currentActivityId; //activity validation
+
     @NotBlank(message = "username cannot be blank.")
     @Size(min = 3, message = "username length must be at least 3.")
     @Column(columnDefinition = "varchar(20) not null unique")
@@ -84,10 +91,4 @@ public class Coach {
             message = "status must be 'Pending', 'Accepted' or 'Rejected'.")
     @Column(columnDefinition = "varchar(20) not null default 'Pending'")
     private String status; //admin
-
-    @Column(columnDefinition = "json")
-    private String sportIds; //filter for search
-
-    @Column(columnDefinition = "int")
-    private Integer currentActivityId; //activity validation
 }

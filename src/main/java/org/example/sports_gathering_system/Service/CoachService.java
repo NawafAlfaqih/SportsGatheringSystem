@@ -21,7 +21,6 @@ public class CoachService {
 
     public void addCoach(Coach coach) {
         coach.setStatus("Pending");
-        coach.setSportIds("[]");
         coach.setCurrentActivityId(null);
 
         coachRepository.save(coach);
@@ -36,6 +35,7 @@ public class CoachService {
         if (!isAdmin)
             return -1; //not allowed
 
+        oldCoach.setTrainingSportId(coach.getTrainingSportId());
         oldCoach.setUsername(coach.getUsername());
         oldCoach.setPassword(coach.getPassword());
         oldCoach.setEmail(coach.getEmail());
@@ -49,7 +49,6 @@ public class CoachService {
         oldCoach.setYearsOfExperience(coach.getYearsOfExperience());
         oldCoach.setCertificateLevel(coach.getCertificateLevel());
 
-        oldCoach.setSportIds(oldCoach.getSportIds());
         oldCoach.setCurrentActivityId(oldCoach.getCurrentActivityId());
         oldCoach.setStatus(oldCoach.getStatus());
 

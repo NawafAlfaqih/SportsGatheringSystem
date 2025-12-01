@@ -28,5 +28,4 @@ public class Sport {
             message = "environment must be 'indoor', 'outdoor' or 'both'.")
     @Column(columnDefinition = "varchar(10) not null")
     private String environment;
-
 }

@@ -17,6 +17,8 @@ public class UserJoinRequestService {
     private final UserJoinRequestRepository userJoinRequestRepository;
     private final UserRepository userRepository;
     private final UserActivityRepository userActivityRepository;
+    private final UserParticipantService userParticipantService;
+
 
 
     public List<UserJoinRequest> getAllJoinRequests() { //admin only
@@ -46,16 +48,27 @@ public class UserJoinRequestService {
     public Integer acceptRequest(Integer requesterId, Integer requestId) {
         UserJoinRequest req = userJoinRequestRepository.findUserJoinRequestById(requestId);
         if (req == null)
-            return -2; //request not found
+            return -2;
 
         UserActivity activity = userActivityRepository.findUserActivityById(req.getActivityId());
         if (activity == null)
-            return -3; //activity not found
+            return -3;
 
         boolean isLeader = requesterId.equals(activity.getLeaderId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
+
         if (!isLeader && !isAdmin)
-            return -1; //unauthorized
+            return -1;
+
+        // add participant
+        Integer result = userParticipantService.addParticipant(
+                req.getActivityId(),
+                activity.getLeaderId(),
+                req.getUserId()
+        );
+
+        if (result < 0)
+            return result; // forward error code
 
         req.setStatus("Accepted");
         userJoinRequestRepository.save(req);
