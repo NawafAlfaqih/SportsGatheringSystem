@@ -2,6 +2,7 @@ package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sports_gathering_system.Model.UserRating;
+import org.example.sports_gathering_system.Repository.UserActivityRepository;
 import org.example.sports_gathering_system.Repository.UserRatingRepository;
 import org.example.sports_gathering_system.Repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.util.List;
 public class UserRatingService {
 
     private final UserRatingRepository userRatingRepository;
+    private final UserActivityRepository userActivityRepository;
     private final UserRepository userRepository;
 
     public List<UserRating> getAllRatings() { //admin only
@@ -102,5 +104,30 @@ public class UserRatingService {
 
     public List<UserRating> getRatingsForUser(Integer userId) {
         return userRatingRepository.findUserRatingsByTargetUserId(userId);
+    }
+
+    public List<UserRating> getRatingsByRater(Integer raterId) {
+        if (userRepository.findUserById(raterId) == null)
+            return null; //not found
+        return userRatingRepository.findUserRatingsByRaterId(raterId);
+    }
+
+    public List<UserRating> getRatingsByTarget(Integer targetUserId) {
+        if (userRepository.findUserById(targetUserId) == null)
+            return null; //not found
+        return userRatingRepository.findUserRatingsByTargetUserId(targetUserId);
+    }
+
+    public List<UserRating> getRatingsByActivity(Integer activityId) {
+        if (userActivityRepository.findUserActivityById(activityId) == null)
+            return null;
+        return userRatingRepository.findUserRatingsByActivityId(activityId);
+    }
+
+    public Double getAverageRating(Integer targetUserId) {
+        if (userRepository.findUserById(targetUserId) == null)
+            return null; //user not found
+        Double avg = userRatingRepository.getAverageRating(targetUserId);
+        return (avg == null ? 0.0 : avg); //rating not found
     }
 }

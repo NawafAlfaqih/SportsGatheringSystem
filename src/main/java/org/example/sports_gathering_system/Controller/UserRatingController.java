@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/user-rating")
 @RequiredArgsConstructor
@@ -63,5 +65,43 @@ public class UserRatingController {
             case -2 -> ResponseEntity.status(404).body(new ApiResponse("Rating was not found"));
             default -> ResponseEntity.status(200).body(new ApiResponse("Rating deleted successfully"));
         };
+    }
+
+    @GetMapping("/get/rater/{raterId}")
+    public ResponseEntity<?> getRatingsByRater(@PathVariable Integer raterId) {
+        List<UserRating> list = userRatingService.getRatingsByRater(raterId);
+        if (list == null)
+            return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
+        if (list.isEmpty())
+            return ResponseEntity.status(404).body(new ApiResponse("No ratings found."));
+        return ResponseEntity.status(200).body(list);
+    }
+
+    @GetMapping("/get/target/{targetUserId}")
+    public ResponseEntity<?> getRatingsByTarget(@PathVariable Integer targetUserId) {
+        List<UserRating> list = userRatingService.getRatingsByTarget(targetUserId);
+        if (list == null)
+            return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
+        if (list.isEmpty())
+            return ResponseEntity.status(404).body(new ApiResponse("No ratings found."));
+        return ResponseEntity.status(200).body(list);
+    }
+
+    @GetMapping("/get/avg/{targetUserId}")
+    public ResponseEntity<?> getAverageRating(@PathVariable Integer targetUserId) {
+        Double avg = userRatingService.getAverageRating(targetUserId);
+        if (avg == null)
+            return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
+        return ResponseEntity.status(200).body(avg);
+    }
+
+    @GetMapping("/get/activity/{activityId}")
+    public ResponseEntity<?> getRatingsByActivity(@PathVariable Integer activityId) {
+        List<UserRating> list = userRatingService.getRatingsByActivity(activityId);
+        if (list == null)
+            return ResponseEntity.status(404).body(new ApiResponse("Activity was not found."));
+        if (list.isEmpty())
+            return ResponseEntity.status(404).body(new ApiResponse("No ratings found."));
+        return ResponseEntity.status(200).body(list);
     }
 }

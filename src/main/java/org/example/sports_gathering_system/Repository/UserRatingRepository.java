@@ -11,12 +11,12 @@ import java.util.List;
 public interface UserRatingRepository extends JpaRepository<UserRating, Integer> {
 
     UserRating findUserRatingById(Integer id);
+
     UserRating findUserRatingByRaterIdAndTargetUserIdAndActivityId(Integer raterId, Integer targetUserId, Integer activityId);
 
     List<UserRating> findUserRatingsByTargetUserId(Integer userId);
-    List<UserRating> findUserRatingsByRaterId(Integer userId);
 
-    List<UserRating> findUserRatingsByTargetId(Integer targetId);
+    List<UserRating> findUserRatingsByRaterId(Integer userId);
 
     List<UserRating> findUserRatingsByActivityId(Integer activityId);
 
