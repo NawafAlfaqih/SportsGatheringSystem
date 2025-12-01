@@ -77,6 +77,24 @@ public class CoachActivityService {
         return 1;
     }
 
+    public List<CoachActivity> getActivitiesByCoach(Integer coachId) {
+        if (coachRepository.findCoachById(coachId) == null)
+            return null; //coach not found
+        return coachActivityRepository.findCoachActivitiesByCoachId(coachId);
+    }
+
+    public List<CoachActivity> getActivitiesBySport(Integer sportId) {
+        return coachActivityRepository.findCoachActivitiesBySportId(sportId);
+    }
+
+    public List<CoachActivity> getSortedActivities(String order) {
+        if (order.equalsIgnoreCase("asc"))
+            return coachActivityRepository.sortAsc();
+        else if (order.equalsIgnoreCase("desc"))
+            return coachActivityRepository.sortDesc();
+        return null; //invalid input
+    }
+
     public Integer checkAdmin(Integer userId) {
         if (userRepository.findUserById(userId) == null)
             return -1; //not found

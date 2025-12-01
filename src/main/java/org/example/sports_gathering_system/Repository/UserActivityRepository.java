@@ -23,6 +23,12 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Inte
     @Query("SELECT a FROM UserActivity a WHERE a.dateTime >= CURRENT_TIMESTAMP ORDER BY a.dateTime ASC")
     List<UserActivity> findUpcomingActivities();
 
+    @Query("select u from UserActivity u order by u.dateTime asc")
+    List<UserActivity> sortAsc();
+
+    @Query("select u from UserActivity u order by u.dateTime desc")
+    List<UserActivity> sortDesc();
+
 
 
 }

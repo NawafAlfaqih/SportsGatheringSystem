@@ -89,6 +89,13 @@ public class UserActivityService {
         return userActivityRepository.findUpcomingActivities();
     }
 
+    public List<UserActivity> getSorted(String order) {
+        if (order.equalsIgnoreCase("asc"))
+            return userActivityRepository.sortAsc();
+        else if (order.equalsIgnoreCase("desc"))
+            return userActivityRepository.sortDesc();
+        return null; //invalid input
+    }
 
     public Integer checkAdmin(Integer userId) {
         if (userRepository.findUserById(userId) == null)

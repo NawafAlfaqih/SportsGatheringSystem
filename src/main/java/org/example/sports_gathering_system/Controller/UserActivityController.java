@@ -33,10 +33,8 @@ public class UserActivityController {
         Integer result = userActivityService.addActivity(activity);
         if (result == -1)
             return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
-
         if (result == -2)
             return ResponseEntity.status(400).body(new ApiResponse("Admin cannot create an activity."));
-
         return ResponseEntity.status(201).body(new ApiResponse("Activity added successfully."));
     }
 
@@ -51,10 +49,8 @@ public class UserActivityController {
         Integer result = userActivityService.updateActivity(userId, id, activity);
         if (result == -1)
             return ResponseEntity.status(400).body(new ApiResponse("You are not allowed to update this activity."));
-
         if (result == -2)
             return ResponseEntity.status(404).body(new ApiResponse("Activity was not found."));
-
         return ResponseEntity.status(200).body(new ApiResponse("Activity updated successfully."));
     }
 
@@ -65,10 +61,8 @@ public class UserActivityController {
 
         if (result == -1)
             return ResponseEntity.status(400).body(new ApiResponse("You are not allowed to delete this activity."));
-
         if (result == -2)
             return ResponseEntity.status(404).body(new ApiResponse("Activity was not found."));
-
         return ResponseEntity.status(200).body(new ApiResponse("Activity deleted successfully."));
     }
 
@@ -97,6 +91,14 @@ public class UserActivityController {
         List<UserActivity> list = userActivityService.getUpcomingActivities();
         if (list.isEmpty())
             return ResponseEntity.status(404).body(new ApiResponse("No upcoming activities found."));
+        return ResponseEntity.status(200).body(list);
+    }
+
+    @GetMapping("/get/sorted/{order}")
+    public ResponseEntity<?> getSorted(@PathVariable String order) {
+        List<UserActivity> list = userActivityService.getSorted(order);
+        if (list == null)
+            return ResponseEntity.status(400).body(new ApiResponse("Invalid order. Use 'asc' or 'desc'."));
         return ResponseEntity.status(200).body(list);
     }
 
