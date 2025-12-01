@@ -24,38 +24,48 @@ public class UserParticipantService {
     }
 
     public Integer addParticipant(Integer activityId, Integer leaderId, Integer participantId) {
-
         UserActivity activity = userActivityRepository.findUserActivityById(activityId);
         if (activity == null)
-            return -1; // activity not found
+            return -1; //activity not found
 
         User participant = userRepository.findUserById(participantId);
         if (participant == null)
-            return -2; // user not found
+            return -2; //user not found
 
         if (participantId.equals(activity.getLeaderId()))
-            return -3; // cannot join own activity
+            return -3; //cannot join own activity
 
         if (!participant.getGender().equalsIgnoreCase(activity.getParticipantsGender()))
-            return -4; // gender restricted
+            return -4; //gender not same
 
         for (UserParticipant up : userParticipantRepository.findAll()) {
             if (up.getActivityId().equals(activityId) &&
                     up.getParticipantId().equals(participantId)) {
-                return -5; // already joined
+                return -5; //already joined
             }
         }
 
-        // check max participants
         long count = userParticipantRepository.findAll().stream()
                 .filter(p -> p.getActivityId().equals(activityId))
                 .count();
 
         if (count >= activity.getMaxParticipants())
-            return -6; // full activity
+            return -6; //activity full
 
         UserParticipant newP = new UserParticipant(null, activityId, leaderId, participantId);
         userParticipantRepository.save(newP);
         return 1;
     }
+
+    public List<User> getParticipants(Integer activityId) {
+        List<UserParticipant> participants = userParticipantRepository.findUserParticipantsByActivityId(activityId);
+        if (participants.isEmpty())
+            return null; // no participants
+
+        //finding all participants ids
+        List<Integer> ids = participants.stream()
+                .map(UserParticipant::getParticipantId).toList();
+        return userRepository.findAllById(ids);
+    }
+
 }

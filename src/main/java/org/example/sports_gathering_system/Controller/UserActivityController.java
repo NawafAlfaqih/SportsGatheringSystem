@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/user-activity")
 @RequiredArgsConstructor
@@ -69,4 +71,33 @@ public class UserActivityController {
 
         return ResponseEntity.status(200).body(new ApiResponse("Activity deleted successfully."));
     }
+
+    @GetMapping("/get/by-city/user/{userId}")
+    public ResponseEntity<?> getActivitiesByCity(@PathVariable Integer userId) {
+        List<UserActivity> list = userActivityService.getActivitiesByCity(userId);
+        if (list == null)
+            return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
+        if (list.isEmpty())
+            return ResponseEntity.status(404).body(new ApiResponse("No activities found in your city."));
+
+        return ResponseEntity.status(200).body(list);
+    }
+
+    @GetMapping("/get/by-sport/{sportId}")
+    public ResponseEntity<?> getActivitiesBySport(@PathVariable Integer sportId) {
+        List<UserActivity> list = userActivityService.getActivitiesBySport(sportId);
+        if (list.isEmpty())
+            return ResponseEntity.status(404).body(new ApiResponse("No activities found for this sport."));
+
+        return ResponseEntity.status(200).body(list);
+    }
+
+    @GetMapping("/get/upcoming")
+    public ResponseEntity<?> getUpcomingActivities() {
+        List<UserActivity> list = userActivityService.getUpcomingActivities();
+        if (list.isEmpty())
+            return ResponseEntity.status(404).body(new ApiResponse("No upcoming activities found."));
+        return ResponseEntity.status(200).body(list);
+    }
+
 }

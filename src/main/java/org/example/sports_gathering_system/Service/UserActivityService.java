@@ -73,6 +73,23 @@ public class UserActivityService {
         return 1;
     }
 
+    public List<UserActivity> getActivitiesByCity(Integer userId) {
+        User user = userRepository.findUserById(userId);
+        if (user == null)
+            return null; //user not found
+
+        return userActivityRepository.findActivitiesByCity(user.getCity());
+    }
+
+    public List<UserActivity> getActivitiesBySport(Integer sportId) {
+        return userActivityRepository.findUserActivitiesBySportId(sportId);
+    }
+
+    public List<UserActivity> getUpcomingActivities() {
+        return userActivityRepository.findUpcomingActivities();
+    }
+
+
     public Integer checkAdmin(Integer userId) {
         if (userRepository.findUserById(userId) == null)
             return -1; //not found
