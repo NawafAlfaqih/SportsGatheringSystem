@@ -17,29 +17,29 @@ public class SportService {
     private final UserRepository userRepository;
 
     public List<Sport> getAllSports(Integer adminId) {
-        if (checkAdmin(adminId) != -1)
+        if (checkAdmin(adminId) == -1)
             throw new ApiException("Admin was not found."); //admin not found
 
-        if (checkAdmin(adminId) != -2)
+        if (checkAdmin(adminId) == -2)
             throw new ApiException("This user is not an admin."); //not admin
         return sportRepository.findAll();
     }
 
     public void addSport(Integer adminId, Sport sport) {
-        if (checkAdmin(adminId) != -1)
+        if (checkAdmin(adminId) == -1)
             throw new ApiException("Admin was not found."); //admin not found
 
-        if (checkAdmin(adminId) != -2)
+        if (checkAdmin(adminId) == -2)
             throw new ApiException("This user is not an admin."); //not admin
 
         sportRepository.save(sport);
     }
 
     public void updateSport(Integer adminId, Integer id, Sport sport) {
-        if (checkAdmin(adminId) != -1)
+        if (checkAdmin(adminId) == -1)
             throw new ApiException("Admin was not found."); //admin not found
 
-        if (checkAdmin(adminId) != -2)
+        if (checkAdmin(adminId) == -2)
             throw new ApiException("This user is not an admin."); //not admin
 
         Sport old = sportRepository.findSportById(id);
@@ -53,10 +53,10 @@ public class SportService {
     }
 
     public void deleteSport(Integer adminId, Integer id) {
-        if (checkAdmin(adminId) != -1)
+        if (checkAdmin(adminId) == -1)
             throw new ApiException("Admin was not found."); //admin not found
 
-        if (checkAdmin(adminId) != -2)
+        if (checkAdmin(adminId) == -2)
             throw new ApiException("This user is not an admin."); //not admin
 
         Sport sport = sportRepository.findSportById(id);

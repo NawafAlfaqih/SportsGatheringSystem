@@ -28,7 +28,4 @@ public class UserParticipantController {
     public ResponseEntity<?> getParticipants(@PathVariable Integer activityId) {
         return ResponseEntity.status(200).body(userParticipantService.getParticipants(activityId));
     }
-
-
-
 }
