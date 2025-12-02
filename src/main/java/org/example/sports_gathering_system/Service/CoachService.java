@@ -1,6 +1,7 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
 import org.example.sports_gathering_system.Model.Coach;
 import org.example.sports_gathering_system.Repository.CoachRepository;
 import org.example.sports_gathering_system.Repository.UserRepository;
@@ -15,7 +16,13 @@ public class CoachService {
     private final CoachRepository coachRepository;
     private final UserRepository userRepository;
 
-    public List<Coach> getAllCoaches() {
+    public List<Coach> getAllCoaches(Integer adminId) {
+        if (checkAdmin(adminId) == -1)
+            throw new ApiException("Admin was not found.");
+
+        if (checkAdmin(adminId) == -2)
+            throw new ApiException("This user is not an admin");
+
         return coachRepository.findAll();
     }
 
@@ -26,14 +33,14 @@ public class CoachService {
         coachRepository.save(coach);
     }
 
-    public Integer updateCoach(Integer requesterId, Integer id, Coach coach) {
+    public void updateCoach(Integer requesterId, Integer id, Coach coach) {
         Coach oldCoach = coachRepository.findCoachById(id);
         if (oldCoach == null)
-            return -2; //not found
+            throw new ApiException("Coach was not found"); //not found
 
         boolean isAdmin = (checkAdmin(requesterId) == 1);
         if (!isAdmin)
-            return -1; //not allowed
+            throw new ApiException("Not allowed to update this coach"); //not allowed
 
         oldCoach.setTrainingSportId(coach.getTrainingSportId());
         oldCoach.setUsername(coach.getUsername());
@@ -53,46 +60,42 @@ public class CoachService {
         oldCoach.setStatus(oldCoach.getStatus());
 
         coachRepository.save(oldCoach);
-        return 1;
     }
 
-    public Integer deleteCoach(Integer requesterId, Integer id) {
+    public void deleteCoach(Integer requesterId, Integer id) {
         Coach coach = coachRepository.findCoachById(id);
         if (coach == null)
-            return -2; //not found
+            throw new ApiException("Coach was not found"); //not found
 
         boolean isAdmin = (checkAdmin(requesterId) == 1);
         if (!isAdmin)
-            return -1; //not admin
+            throw new ApiException("Not allowed to update this coach"); //not allowed
 
         coachRepository.delete(coach);
-        return 1;
     }
 
-    public Integer approveCoach(Integer adminId, Integer coachId) {
+    public void approveCoach(Integer adminId, Integer coachId) {
         if (checkAdmin(adminId) != 1)
-            return -1; //not admin
+            throw new ApiException("This user is not an admin"); //not admin
 
         Coach c = coachRepository.findCoachById(coachId);
         if (c == null)
-            return -2; //not found
+            throw new ApiException("Coach was not found"); //not found
 
         c.setStatus("Accepted");
         coachRepository.save(c);
-        return 1;
     }
 
-    public Integer rejectCoach(Integer adminId, Integer coachId) {
+    public void rejectCoach(Integer adminId, Integer coachId) {
         if (checkAdmin(adminId) != 1)
-            return -1; //not admin
+            throw new ApiException("This user is not an admin"); //not admin
 
         Coach c = coachRepository.findCoachById(coachId);
         if (c == null)
-            return -2;
+            throw new ApiException("Coach was not found"); //not found
 
         c.setStatus("Rejected");
         coachRepository.save(c);
-        return 1;
     }
 
     public Integer checkAdmin(Integer userId) {

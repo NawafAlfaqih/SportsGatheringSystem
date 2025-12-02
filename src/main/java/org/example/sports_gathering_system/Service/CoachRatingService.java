@@ -1,6 +1,7 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
 import org.example.sports_gathering_system.Model.Coach;
 import org.example.sports_gathering_system.Model.CoachRating;
 import org.example.sports_gathering_system.Model.User;
@@ -23,64 +24,53 @@ public class CoachRatingService {
         return coachRatingRepository.findAll();
     }
 
-    public Integer addRating(CoachRating rating) {
+    public void addRating(CoachRating rating) {
 
         User rater = userRepository.findUserById(rating.getRaterId());
         if (rater == null)
-            return -1; // rater not found
+            throw new ApiException("Rater was not found."); //rater not found
 
         Coach coach = coachRepository.findCoachById(rating.getCoachId());
         if (coach == null)
-            return -2; // coach not found
-
-        if (rating.getRaterId().equals(rating.getCoachId()))
-            return -3; // cannot rate yourself (if IDs overlap)
+            throw new ApiException("Coach was not found."); //coach not found
 
         // prevent duplicate rating by same user on same coach
         for (CoachRating r : coachRatingRepository.findAll()) {
             if (r.getRaterId().equals(rating.getRaterId()) &&
                     r.getCoachId().equals(rating.getCoachId())) {
-                return -4; // duplicate rating
+                throw new ApiException("Duplicate rating is not allowed."); //duplicate rating
             }
         }
-
         coachRatingRepository.save(rating);
-        return 1;
     }
 
-    public Integer updateRating(Integer raterId, Integer id, CoachRating rating) {
+    public void updateRating(Integer raterId, Integer id, CoachRating rating) {
 
         CoachRating old = coachRatingRepository.findCoachRatingById(id);
         if (old == null)
-            return -2; // rating not found
+            throw new ApiException("Rating was not found."); //rating not found
 
         if (!raterId.equals(old.getRaterId()))
-            return -1; // unauthorized (must be owner)
+            throw new ApiException("You are not allowed to update this rating."); //unauthorized
 
         Coach coach = coachRepository.findCoachById(old.getCoachId());
         if (coach == null)
-            return -3; // coach not found
-
-        if (raterId.equals(old.getCoachId()))
-            return -4; // cannot rate yourself
+            throw new ApiException("Coach was not found."); //coach not found
 
         old.setScore(rating.getScore());
         old.setComment(rating.getComment());
 
         coachRatingRepository.save(old);
-        return 1;
     }
 
-    public Integer deleteRating(Integer raterId, Integer id) {
-
+    public void deleteRating(Integer raterId, Integer id) {
         CoachRating rating = coachRatingRepository.findCoachRatingById(id);
         if (rating == null)
-            return -2; // rating not found
+            throw new ApiException("Rating was not found."); // rating not found
 
         if (!raterId.equals(rating.getRaterId()))
-            return -1; // unauthorized
+            throw new ApiException("You are not allowed to delete this rating."); // unauthorized
 
         coachRatingRepository.delete(rating);
-        return 1;
     }
 }

@@ -18,65 +18,37 @@ public class CoachController {
 
     @GetMapping("/get/admin/{adminId}")
     public ResponseEntity<?> getAllCoaches(@PathVariable Integer adminId) {
-        Integer check = coachService.checkAdmin(adminId);
-        if (check == -1) {
-            return ResponseEntity.status(404).body(new ApiResponse("Admin was not found."));
-        }
-        if (check == -2) {
-            return ResponseEntity.status(400).body(new ApiResponse("This user is not an admin"));
-        }
-        return ResponseEntity.status(200).body(coachService.getAllCoaches());
+        return ResponseEntity.status(200).body(coachService.getAllCoaches(adminId));
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addCoach(@RequestBody @Valid Coach coach, Errors errors) {
-        if (errors.hasErrors()) {
-            String message = errors.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(new ApiResponse(message));
-        }
+    public ResponseEntity<?> addCoach(@RequestBody @Valid Coach coach) {
         coachService.addCoach(coach);
         return ResponseEntity.status(201).body(new ApiResponse("Coach added successfully"));
     }
 
     @PutMapping("/update/id/{id}/user/{userId}")
     public ResponseEntity<?> updateCoach(@PathVariable Integer id, @PathVariable Integer userId,
-                                         @RequestBody @Valid Coach coach, Errors errors) {
-        if (errors.hasErrors()) {
-            String message = errors.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(new ApiResponse(message));
-        }
-
-        return switch (coachService.updateCoach(userId, id, coach)) {
-            case -1 -> ResponseEntity.status(400).body(new ApiResponse("Not allowed to update this coach"));
-            case -2 -> ResponseEntity.status(404).body(new ApiResponse("Coach was not found"));
-            default -> ResponseEntity.status(200).body(new ApiResponse("Coach updated successfully"));
-        };
+                                         @RequestBody @Valid Coach coach) {
+        coachService.updateCoach(userId, id, coach);
+        return ResponseEntity.status(200).body(new ApiResponse("Coach updated successfully"));
     }
 
     @DeleteMapping("/delete/id/{id}/user/{userId}")
     public ResponseEntity<?> deleteCoach(@PathVariable Integer id, @PathVariable Integer userId) {
-        return switch (coachService.deleteCoach(userId, id)) {
-            case -1 -> ResponseEntity.status(400).body(new ApiResponse("Not allowed to delete this coach"));
-            case -2 -> ResponseEntity.status(404).body(new ApiResponse("Coach was not found"));
-            default -> ResponseEntity.status(200).body(new ApiResponse("Coach deleted successfully"));
-        };
+        coachService.deleteCoach(userId, id);
+        return ResponseEntity.status(200).body(new ApiResponse("Coach deleted successfully"));
     }
 
     @PutMapping("/approve/admin/{adminId}/coach/{coachId}")
     public ResponseEntity<?> approveCoach(@PathVariable Integer adminId, @PathVariable Integer coachId) {
-        return switch (coachService.approveCoach(adminId, coachId)) {
-            case -1 -> ResponseEntity.status(400).body(new ApiResponse("This user is not an admin"));
-            case -2 -> ResponseEntity.status(404).body(new ApiResponse("Coach was not found"));
-            default -> ResponseEntity.status(200).body(new ApiResponse("Coach approved successfully"));
-        };
+        coachService.approveCoach(adminId, coachId);
+        return ResponseEntity.status(200).body(new ApiResponse("Coach approved successfully"));
     }
 
     @PutMapping("/reject/admin/{adminId}/coach/{coachId}")
     public ResponseEntity<?> rejectCoach(@PathVariable Integer adminId, @PathVariable Integer coachId) {
-        return switch (coachService.rejectCoach(adminId, coachId)) {
-            case -1 -> ResponseEntity.status(400).body(new ApiResponse("This user is not an admin"));
-            case -2 -> ResponseEntity.status(404).body(new ApiResponse("Coach was not found"));
-            default -> ResponseEntity.status(200).body(new ApiResponse("Coach rejected successfully"));
-        };
+        coachService.rejectCoach(adminId, coachId);
+        return ResponseEntity.status(200).body(new ApiResponse("Coach rejected successfully"));
     }
 }

@@ -1,10 +1,13 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
+import org.example.sports_gathering_system.Api.ApiResponse;
 import org.example.sports_gathering_system.Model.User;
 import org.example.sports_gathering_system.Model.UserActivity;
 import org.example.sports_gathering_system.Repository.UserActivityRepository;
 import org.example.sports_gathering_system.Repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,29 +24,28 @@ public class UserActivityService {
         return userActivityRepository.findAll();
     }
 
-    public Integer addActivity(UserActivity activity) {
+    public void addActivity(UserActivity activity) {
         if (userRepository.findUserById(activity.getLeaderId()) == null)
-            return -1; // user not found
+            throw new ApiException("User was not found."); // user not found
 
         if (checkAdmin(activity.getLeaderId()) == 1)
-            return -2; // admin not allowed
+            throw new ApiException("Admin cannot create an activity."); // admin not allowed
 
         activity.setParticipantIds("[]");
         userActivityRepository.save(activity);
-        return 1;
     }
 
 
     //ONLY leader OR admin can update
-    public Integer updateActivity(Integer requesterId, Integer id, UserActivity activity) {
+    public void updateActivity(Integer requesterId, Integer id, UserActivity activity) {
         UserActivity old = userActivityRepository.findUserActivityById(id);
         if (old == null)
-            return -2; //activity not found
+            throw new ApiException("Activity was not found."); //activity not found
 
         boolean isLeader = requesterId.equals(old.getLeaderId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
         if (!isLeader && !isAdmin)
-            return -1; //unauthorized
+            throw new ApiException("You are not allowed to update this activity."); //unauthorized
 
         old.setTitle(activity.getTitle());
         old.setDescription(activity.getDescription());
@@ -56,37 +58,49 @@ public class UserActivityService {
         old.setParticipantIds(old.getParticipantIds());
 
         userActivityRepository.save(old);
-        return 1;
-    }
+   }
 
-    public Integer deleteActivity(Integer requesterId, Integer id) {
+    public void deleteActivity(Integer requesterId, Integer id) {
         UserActivity activity = userActivityRepository.findUserActivityById(id);
         if (activity == null)
-            return -2; //not found
+            throw new ApiException("Activity was not found."); //not found
 
         boolean isLeader = requesterId.equals(activity.getLeaderId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
         if (!isLeader && !isAdmin)
-            return -1; //unauthorized
+            throw new ApiException("You are not allowed to delete this activity."); //unauthorized
 
         userActivityRepository.delete(activity);
-        return 1;
     }
 
     public List<UserActivity> getActivitiesByCity(Integer userId) {
         User user = userRepository.findUserById(userId);
         if (user == null)
-            return null; //user not found
+            throw new ApiException("User was not found."); //user not found
 
-        return userActivityRepository.findActivitiesByCity(user.getCity());
+        List<UserActivity> userActivities =
+                userActivityRepository.findActivitiesByCity(user.getCity());
+
+        if (userActivities.isEmpty())
+            throw new ApiException("No activities found in your city."); //no activities
+
+        return userActivities;
     }
 
     public List<UserActivity> getActivitiesBySport(Integer sportId) {
-        return userActivityRepository.findUserActivitiesBySportId(sportId);
+        List<UserActivity> list = userActivityRepository.findUserActivitiesBySportId(sportId);
+        if (list.isEmpty())
+            throw new ApiException("No activities found for this sport."); //no activities
+
+        return list;
     }
 
     public List<UserActivity> getUpcomingActivities() {
-        return userActivityRepository.findUpcomingActivities();
+        List<UserActivity> list = userActivityRepository.findUpcomingActivities();
+        if (list.isEmpty())
+            throw new ApiException("No upcoming activities found."); //no activities
+
+        return list;
     }
 
     public List<UserActivity> getSorted(String order) {
@@ -94,7 +108,7 @@ public class UserActivityService {
             return userActivityRepository.sortAsc();
         else if (order.equalsIgnoreCase("desc"))
             return userActivityRepository.sortDesc();
-        return null; //invalid input
+        throw new ApiException("Invalid order. Use 'asc' or 'desc'."); //invalid input
     }
 
     public Integer checkAdmin(Integer userId) {

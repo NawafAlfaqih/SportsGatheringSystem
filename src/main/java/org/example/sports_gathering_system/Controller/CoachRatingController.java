@@ -22,59 +22,21 @@ public class CoachRatingController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addRating(@RequestBody @Valid CoachRating rating, Errors errors) {
-        if (errors.hasErrors()) {
-            String message = errors.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(new ApiResponse(message));
-        }
-
-        Integer result = coachRatingService.addRating(rating);
-
-        if (result == -1)
-            return ResponseEntity.status(404).body(new ApiResponse("Rater was not found."));
-        if (result == -2)
-            return ResponseEntity.status(404).body(new ApiResponse("Coach was not found."));
-        if (result == -3)
-            return ResponseEntity.status(400).body(new ApiResponse("Cannot rate yourself."));
-        if (result == -4)
-            return ResponseEntity.status(400).body(new ApiResponse("Duplicate rating is not allowed."));
-
+    public ResponseEntity<?> addRating(@RequestBody @Valid CoachRating rating) {
+        coachRatingService.addRating(rating);
         return ResponseEntity.status(201).body(new ApiResponse("Rating added successfully."));
     }
 
     @PutMapping("/update/id/{id}/rater/{raterId}")
     public ResponseEntity<?> updateRating(@PathVariable Integer id, @PathVariable Integer raterId,
-                                          @RequestBody @Valid CoachRating rating, Errors errors) {
-
-        if (errors.hasErrors()) {
-            String message = errors.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(new ApiResponse(message));
-        }
-
-        Integer result = coachRatingService.updateRating(raterId, id, rating);
-
-        if (result == -1)
-            return ResponseEntity.status(400).body(new ApiResponse("You are not allowed to update this rating."));
-        if (result == -2)
-            return ResponseEntity.status(404).body(new ApiResponse("Rating was not found."));
-        if (result == -3)
-            return ResponseEntity.status(404).body(new ApiResponse("Coach was not found."));
-        if (result == -4)
-            return ResponseEntity.status(400).body(new ApiResponse("Cannot rate yourself."));
-
+                                          @RequestBody @Valid CoachRating rating) {
+        coachRatingService.updateRating(raterId, id, rating);
         return ResponseEntity.status(200).body(new ApiResponse("Rating updated successfully."));
     }
 
     @DeleteMapping("/delete/id/{id}/rater/{raterId}")
     public ResponseEntity<?> deleteRating(@PathVariable Integer id, @PathVariable Integer raterId) {
-
-        Integer result = coachRatingService.deleteRating(raterId, id);
-
-        if (result == -1)
-            return ResponseEntity.status(400).body(new ApiResponse("You are not allowed to delete this rating."));
-        if (result == -2)
-            return ResponseEntity.status(404).body(new ApiResponse("Rating was not found."));
-
+        coachRatingService.deleteRating(raterId, id);
         return ResponseEntity.status(200).body(new ApiResponse("Rating deleted successfully."));
     }
 

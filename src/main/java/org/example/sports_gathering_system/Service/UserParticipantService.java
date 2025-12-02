@@ -1,6 +1,7 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
 import org.example.sports_gathering_system.Model.User;
 import org.example.sports_gathering_system.Model.UserActivity;
 import org.example.sports_gathering_system.Model.UserParticipant;
@@ -23,6 +24,7 @@ public class UserParticipantService {
         return userParticipantRepository.findAll();
     }
 
+    //used in another service not controller
     public Integer addParticipant(Integer activityId, Integer leaderId, Integer participantId) {
         UserActivity activity = userActivityRepository.findUserActivityById(activityId);
         if (activity == null)
@@ -60,7 +62,7 @@ public class UserParticipantService {
     public List<User> getParticipants(Integer activityId) {
         List<UserParticipant> participants = userParticipantRepository.findUserParticipantsByActivityId(activityId);
         if (participants.isEmpty())
-            return null; // no participants
+            throw new ApiException("No participants found."); // no participants
 
         //finding all participants ids
         List<Integer> ids = participants.stream()

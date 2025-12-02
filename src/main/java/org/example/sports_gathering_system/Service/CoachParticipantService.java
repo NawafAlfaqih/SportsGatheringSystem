@@ -23,6 +23,7 @@ public class CoachParticipantService {
         return coachParticipantRepository.findAll();
     }
 
+    //used in another service not controller
     public Integer addParticipant(Integer activityId, Integer coachId, Integer participantId) {
 
         CoachActivity activity = coachActivityRepository.findCoachActivityById(activityId);
@@ -33,13 +34,13 @@ public class CoachParticipantService {
         if (participant == null)
             return -2; // user not found
 
-        if (participantId.equals(activity.getCoachId()))
-            return -3;
+        if (!participant.getGender().equalsIgnoreCase(activity.getParticipantsGender()))
+            return -3; //gender not same
 
         for (CoachParticipant cp : coachParticipantRepository.findAll()) {
             if (cp.getActivityId().equals(activityId) &&
                     cp.getParticipantId().equals(participantId)) {
-                return -4;
+                return -4; //already joined
             }
         }
         long count = coachParticipantRepository.findAll().stream()

@@ -24,82 +24,42 @@ public class UserActivityController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addActivity(@RequestBody @Valid UserActivity activity, Errors errors) {
-
-        if (errors.hasErrors()) {
-            String message = errors.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(new ApiResponse(message));
-        }
-        Integer result = userActivityService.addActivity(activity);
-        if (result == -1)
-            return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
-        if (result == -2)
-            return ResponseEntity.status(400).body(new ApiResponse("Admin cannot create an activity."));
+    public ResponseEntity<?> addActivity(@RequestBody @Valid UserActivity activity) {
+        userActivityService.addActivity(activity);
         return ResponseEntity.status(201).body(new ApiResponse("Activity added successfully."));
     }
 
     @PutMapping("/update/id/{id}/user/{userId}")
     public ResponseEntity<?> updateActivity(@PathVariable Integer id, @PathVariable Integer userId,
-                                            @RequestBody @Valid UserActivity activity, Errors errors) {
-        if (errors.hasErrors()) {
-            String message = errors.getFieldError().getDefaultMessage();
-            return ResponseEntity.status(400).body(new ApiResponse(message));
-        }
-
-        Integer result = userActivityService.updateActivity(userId, id, activity);
-        if (result == -1)
-            return ResponseEntity.status(400).body(new ApiResponse("You are not allowed to update this activity."));
-        if (result == -2)
-            return ResponseEntity.status(404).body(new ApiResponse("Activity was not found."));
+                                            @RequestBody @Valid UserActivity activity) {
+        userActivityService.updateActivity(userId, id, activity);
         return ResponseEntity.status(200).body(new ApiResponse("Activity updated successfully."));
     }
 
     @DeleteMapping("/delete/id/{id}/user/{userId}")
     public ResponseEntity<?> deleteActivity(@PathVariable Integer id, @PathVariable Integer userId) {
-
-        Integer result = userActivityService.deleteActivity(userId, id);
-
-        if (result == -1)
-            return ResponseEntity.status(400).body(new ApiResponse("You are not allowed to delete this activity."));
-        if (result == -2)
-            return ResponseEntity.status(404).body(new ApiResponse("Activity was not found."));
+        userActivityService.deleteActivity(userId, id);
         return ResponseEntity.status(200).body(new ApiResponse("Activity deleted successfully."));
     }
 
     @GetMapping("/get/by-city/user/{userId}")
     public ResponseEntity<?> getActivitiesByCity(@PathVariable Integer userId) {
-        List<UserActivity> list = userActivityService.getActivitiesByCity(userId);
-        if (list == null)
-            return ResponseEntity.status(404).body(new ApiResponse("User was not found."));
-        if (list.isEmpty())
-            return ResponseEntity.status(404).body(new ApiResponse("No activities found in your city."));
-
-        return ResponseEntity.status(200).body(list);
+        return ResponseEntity.status(200).body(userActivityService.getActivitiesByCity(userId));
     }
 
     @GetMapping("/get/by-sport/{sportId}")
     public ResponseEntity<?> getActivitiesBySport(@PathVariable Integer sportId) {
-        List<UserActivity> list = userActivityService.getActivitiesBySport(sportId);
-        if (list.isEmpty())
-            return ResponseEntity.status(404).body(new ApiResponse("No activities found for this sport."));
-
-        return ResponseEntity.status(200).body(list);
+        return ResponseEntity.status(200).body(userActivityService.getActivitiesBySport(sportId));
     }
 
     @GetMapping("/get/upcoming")
     public ResponseEntity<?> getUpcomingActivities() {
-        List<UserActivity> list = userActivityService.getUpcomingActivities();
-        if (list.isEmpty())
-            return ResponseEntity.status(404).body(new ApiResponse("No upcoming activities found."));
-        return ResponseEntity.status(200).body(list);
+        return ResponseEntity.status(200).body(userActivityService.getUpcomingActivities());
     }
 
     @GetMapping("/get/sorted/{order}")
     public ResponseEntity<?> getSorted(@PathVariable String order) {
-        List<UserActivity> list = userActivityService.getSorted(order);
-        if (list == null)
-            return ResponseEntity.status(400).body(new ApiResponse("Invalid order. Use 'asc' or 'desc'."));
-        return ResponseEntity.status(200).body(list);
+        return ResponseEntity.status(200).body(userActivityService.getSorted(order));
     }
 
 }

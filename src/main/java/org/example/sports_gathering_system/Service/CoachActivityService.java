@@ -1,6 +1,7 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
 import org.example.sports_gathering_system.Model.Coach;
 import org.example.sports_gathering_system.Model.CoachActivity;
 import org.example.sports_gathering_system.Repository.CoachActivityRepository;
@@ -22,31 +23,30 @@ public class CoachActivityService {
         return coachActivityRepository.findAll();
     }
 
-    public Integer addActivity(CoachActivity activity) {
+    public void addActivity(CoachActivity activity) {
         Coach leader = coachRepository.findCoachById(activity.getCoachId());
         if (leader == null)
-            return -1; //coach not found
+            throw new ApiException("Coach was not found."); //coach not found
 
         if (!"Accepted".equalsIgnoreCase(leader.getStatus()))
-            return -2; //coach is not accepted
+            throw new ApiException("Coach is not accepted."); //coach is not accepted
 
         activity.setParticipantIds("[]");
 
         coachActivityRepository.save(activity);
-        return 1;
     }
 
     // ONLY leader OR admin can update
-    public Integer updateActivity(Integer requesterId, Integer id, CoachActivity activity) {
+    public void updateActivity(Integer requesterId, Integer id, CoachActivity activity) {
         CoachActivity old = coachActivityRepository.findCoachActivityById(id);
         if (old == null)
-            return -2; //activity not found
+            throw new ApiException("Activity was not found."); //activity not found
 
         boolean isLeader = requesterId.equals(old.getCoachId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
 
         if (!isLeader && !isAdmin)
-            return -1; //unauthorized
+            throw new ApiException("You are not allowed to update this activity."); //unauthorized
 
         old.setTitle(activity.getTitle());
         old.setDescription(activity.getDescription());
@@ -59,32 +59,39 @@ public class CoachActivityService {
         old.setParticipantIds(old.getParticipantIds());
 
         coachActivityRepository.save(old);
-        return 1;
     }
 
-    public Integer deleteActivity(Integer requesterId, Integer id) {
+    public void deleteActivity(Integer requesterId, Integer id) {
         CoachActivity activity = coachActivityRepository.findCoachActivityById(id);
         if (activity == null)
-            return -2; //not found
+            throw new ApiException("Activity was not found."); //not found
 
         boolean isLeader = requesterId.equals(activity.getCoachId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
 
         if (!isLeader && !isAdmin)
-            return -1; //unauthorized
+            throw new ApiException("You are not allowed to delete this activity."); //unauthorized
 
         coachActivityRepository.delete(activity);
-        return 1;
     }
 
     public List<CoachActivity> getActivitiesByCoach(Integer coachId) {
         if (coachRepository.findCoachById(coachId) == null)
-            return null; //coach not found
-        return coachActivityRepository.findCoachActivitiesByCoachId(coachId);
+            throw new ApiException("No activities found for this sport."); //coach not found
+
+        List<CoachActivity> list = coachActivityRepository.findCoachActivitiesByCoachId(coachId);
+        if (list.isEmpty())
+            throw new ApiException("No activities found for this coach.");
+
+        return list;
     }
 
     public List<CoachActivity> getActivitiesBySport(Integer sportId) {
-        return coachActivityRepository.findCoachActivitiesBySportId(sportId);
+        List<CoachActivity> list = coachActivityRepository.findCoachActivitiesBySportId(sportId);
+        if (list.isEmpty())
+            throw new ApiException("No activities found for this sport.");
+
+        return list ;
     }
 
     public List<CoachActivity> getSortedActivities(String order) {
@@ -92,7 +99,7 @@ public class CoachActivityService {
             return coachActivityRepository.sortAsc();
         else if (order.equalsIgnoreCase("desc"))
             return coachActivityRepository.sortDesc();
-        return null; //invalid input
+        throw new ApiException("Invalid order. Use 'asc' or 'desc'."); //invalid input
     }
 
     public Integer checkAdmin(Integer userId) {

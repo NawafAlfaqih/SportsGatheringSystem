@@ -1,14 +1,9 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.sports_gathering_system.Model.Coach;
-import org.example.sports_gathering_system.Model.CoachActivity;
-import org.example.sports_gathering_system.Model.CoachJoinRequest;
-import org.example.sports_gathering_system.Model.User;
-import org.example.sports_gathering_system.Repository.CoachActivityRepository;
-import org.example.sports_gathering_system.Repository.CoachJoinRequestRepository;
-import org.example.sports_gathering_system.Repository.CoachRepository;
-import org.example.sports_gathering_system.Repository.UserRepository;
+import org.example.sports_gathering_system.Api.ApiException;
+import org.example.sports_gathering_system.Model.*;
+import org.example.sports_gathering_system.Repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +13,17 @@ import java.util.List;
 public class CoachJoinRequestService {
 
     private final CoachJoinRequestRepository coachJoinRequestRepository;
-    private final CoachRepository coachRepository;
     private final CoachActivityRepository coachActivityRepository;
     private final UserRepository userRepository;
+    private final CoachParticipantService coachParticipantService;
 
-    public List<CoachJoinRequest> getAllJoinRequests() { // admin only
+    public List<CoachJoinRequest> getAllJoinRequests(Integer adminId) { // admin only
+        Integer check = checkAdmin(adminId);
+        if (check == -1)
+            throw new ApiException("Admin was not found.");
+        if (check == -2)
+            throw new ApiException("This user is not an admin.");
+
         return coachJoinRequestRepository.findAll();
     }
     public Integer addJoinRequest(CoachJoinRequest request) {
@@ -61,6 +62,23 @@ public class CoachJoinRequestService {
 
         if (!isLeader && !isAdmin)
             return -1; // unauthorized
+
+        Integer result = coachParticipantService.addParticipant(
+                req.getActivityId(),
+                activity.getCoachId(),
+                req.getUserId()
+        );
+
+        if (result == -1)
+            throw new ApiException("Activity was not found.");
+        if (result == -2)
+            throw new ApiException("Participant was not found.");
+        if (result == -3)
+            throw new ApiException("Participant's gender is not allowed.");
+        if (result == -4)
+            throw new ApiException("Participant is already joined");
+        if (result == -5)
+            throw new ApiException("Activity is full");
 
         req.setStatus("Accepted");
         coachJoinRequestRepository.save(req);

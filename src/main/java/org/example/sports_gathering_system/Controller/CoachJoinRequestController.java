@@ -18,13 +18,7 @@ public class CoachJoinRequestController {
 
     @GetMapping("/get/admin/{adminId}")
     public ResponseEntity<?> getAllRequests(@PathVariable Integer adminId) {
-        Integer check = coachJoinRequestService.checkAdmin(adminId);
-        if (check == -1)
-            return ResponseEntity.status(404).body(new ApiResponse("Admin was not found."));
-        if (check == -2)
-            return ResponseEntity.status(400).body(new ApiResponse("This user is not an admin."));
-
-        return ResponseEntity.status(200).body(coachJoinRequestService.getAllJoinRequests());
+        return ResponseEntity.status(200).body(coachJoinRequestService.getAllJoinRequests(adminId));
     }
 
     @PostMapping("/add")

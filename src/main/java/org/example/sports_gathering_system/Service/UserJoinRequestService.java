@@ -1,11 +1,14 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
+import org.example.sports_gathering_system.Api.ApiResponse;
 import org.example.sports_gathering_system.Model.UserActivity;
 import org.example.sports_gathering_system.Model.UserJoinRequest;
 import org.example.sports_gathering_system.Repository.UserActivityRepository;
 import org.example.sports_gathering_system.Repository.UserJoinRequestRepository;
 import org.example.sports_gathering_system.Repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,44 +24,49 @@ public class UserJoinRequestService {
 
 
 
-    public List<UserJoinRequest> getAllJoinRequests() { //admin only
+    public List<UserJoinRequest> getAllJoinRequests(Integer adminId) { //admin only
+        Integer check = checkAdmin(adminId);
+        if (check == -1)
+            throw new ApiException("Admin was not found.");
+        if (check == -2)
+            throw new ApiException("This user is not an admin.");
+
         return userJoinRequestRepository.findAll();
     }
 
-    public Integer addJoinRequest(UserJoinRequest request) {
+    public void addJoinRequest(UserJoinRequest request) {
         if (userRepository.findUserById(request.getUserId()) == null)
-            return -1; //user not found
+            throw new ApiException("User was not found."); //user not found
 
         if (userActivityRepository.findUserActivityById(request.getActivityId()) == null)
-            return -2; //activity not found
+            throw new ApiException("Activity was not found."); //activity not found
 
         // Check if already requested
         for (UserJoinRequest existing : userJoinRequestRepository.findAll()) {
             if (existing.getUserId().equals(request.getUserId()) &&
                     existing.getActivityId().equals(request.getActivityId())) {
-                return -3; //already requested
+                throw new ApiException("You already submitted a join request."); //already requested
             }
         }
 
         request.setStatus("Pending");
         userJoinRequestRepository.save(request);
-        return 1;
     }
 
-    public Integer acceptRequest(Integer requesterId, Integer requestId) {
+    public void acceptRequest(Integer requesterId, Integer requestId) {
         UserJoinRequest req = userJoinRequestRepository.findUserJoinRequestById(requestId);
         if (req == null)
-            return -2;
+            throw new ApiException("Join request was not found.");
 
         UserActivity activity = userActivityRepository.findUserActivityById(req.getActivityId());
         if (activity == null)
-            return -3;
+            throw new ApiException("Activity was not found.");
 
         boolean isLeader = requesterId.equals(activity.getLeaderId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
 
         if (!isLeader && !isAdmin)
-            return -1;
+            throw new ApiException("You are not allowed to accept this request.");
 
         // add participant
         Integer result = userParticipantService.addParticipant(
@@ -67,31 +75,39 @@ public class UserJoinRequestService {
                 req.getUserId()
         );
 
-        if (result < 0)
-            return result; // forward error code
+        if (result == -1)
+            throw new ApiException("Activity was not found.");
+        if (result == -2)
+            throw new ApiException("Participant was not found.");
+        if (result == -3)
+            throw new ApiException("Cannot join own activity.");
+        if (result == -4)
+            throw new ApiException("Participant's gender is not allowed.");
+        if (result == -5)
+            throw new ApiException("Participant is already joined");
+        if (result == -6)
+            throw new ApiException("Activity is full");
 
         req.setStatus("Accepted");
         userJoinRequestRepository.save(req);
-        return 1;
     }
 
-    public Integer rejectRequest(Integer requesterId, Integer requestId) {
+    public void rejectRequest(Integer requesterId, Integer requestId) {
         UserJoinRequest req = userJoinRequestRepository.findUserJoinRequestById(requestId);
         if (req == null)
-            return -2; //request not found
+            throw new ApiException("Join request was not found."); //request not found
 
         UserActivity activity = userActivityRepository.findUserActivityById(req.getActivityId());
         if (activity == null)
-            return -3; //activity not found
+            throw new ApiException("Activity was not found."); //activity not found
 
         boolean isLeader = requesterId.equals(activity.getLeaderId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
         if (!isLeader && !isAdmin)
-            return -1; //unauthorized
+            throw new ApiException("You are not allowed to reject this request."); //unauthorized
 
         req.setStatus("Rejected");
         userJoinRequestRepository.save(req);
-        return 1;
     }
 
     public Integer checkAdmin(Integer userId) {

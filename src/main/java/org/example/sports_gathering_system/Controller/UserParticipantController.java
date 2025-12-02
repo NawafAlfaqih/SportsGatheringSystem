@@ -26,10 +26,7 @@ public class UserParticipantController {
 
     @GetMapping("/participants/{activityId}")
     public ResponseEntity<?> getParticipants(@PathVariable Integer activityId) {
-        List<User> users = userParticipantService.getParticipants(activityId);
-        if (users == null)
-            return ResponseEntity.status(404).body(new ApiResponse("No participants found."));
-        return ResponseEntity.status(200).body(users);
+        return ResponseEntity.status(200).body(userParticipantService.getParticipants(activityId));
     }
 
 

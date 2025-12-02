@@ -1,6 +1,7 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
 import org.example.sports_gathering_system.Model.Sport;
 import org.example.sports_gathering_system.Repository.SportRepository;
 import org.example.sports_gathering_system.Repository.UserRepository;
@@ -15,46 +16,54 @@ public class SportService {
     private final SportRepository sportRepository;
     private final UserRepository userRepository;
 
-    public List<Sport> getAllSports() {
+    public List<Sport> getAllSports(Integer adminId) {
+        if (checkAdmin(adminId) != -1)
+            throw new ApiException("Admin was not found."); //admin not found
+
+        if (checkAdmin(adminId) != -2)
+            throw new ApiException("This user is not an admin."); //not admin
         return sportRepository.findAll();
     }
 
-    public Integer addSport(Integer adminId, Sport sport) {
-        Integer check = checkAdmin(adminId);
-        if (check != 1)
-            return check; //admin check => -1 or -2
+    public void addSport(Integer adminId, Sport sport) {
+        if (checkAdmin(adminId) != -1)
+            throw new ApiException("Admin was not found."); //admin not found
+
+        if (checkAdmin(adminId) != -2)
+            throw new ApiException("This user is not an admin."); //not admin
 
         sportRepository.save(sport);
-        return 1;
     }
 
-    public Integer updateSport(Integer adminId, Integer id, Sport sport) {
-        Integer check = checkAdmin(adminId);
-        if (check != 1)
-            return check; //admin check => -1 or -2
+    public void updateSport(Integer adminId, Integer id, Sport sport) {
+        if (checkAdmin(adminId) != -1)
+            throw new ApiException("Admin was not found."); //admin not found
+
+        if (checkAdmin(adminId) != -2)
+            throw new ApiException("This user is not an admin."); //not admin
 
         Sport old = sportRepository.findSportById(id);
         if (old == null)
-            return -3; //not found
+            throw new ApiException("Sport was not found."); //not found
 
         old.setName(sport.getName());
         old.setEnvironment(sport.getEnvironment());
 
         sportRepository.save(old);
-        return 1;
     }
 
-    public Integer deleteSport(Integer adminId, Integer id) {
-        Integer check = checkAdmin(adminId);
-        if (check != 1)
-            return check; //admin check => -1 or -2
+    public void deleteSport(Integer adminId, Integer id) {
+        if (checkAdmin(adminId) != -1)
+            throw new ApiException("Admin was not found."); //admin not found
+
+        if (checkAdmin(adminId) != -2)
+            throw new ApiException("This user is not an admin."); //not admin
 
         Sport sport = sportRepository.findSportById(id);
         if (sport == null)
-            return -3; //not found
+            throw new ApiException("Sport was not found."); //not found
 
         sportRepository.delete(sport);
-        return 1;
     }
 
     public Integer checkAdmin(Integer userId) {

@@ -1,6 +1,7 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
 import org.example.sports_gathering_system.Model.User;
 import org.example.sports_gathering_system.Repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,13 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(Integer adminId) {
+        if (checkAdmin(adminId) == -1)
+            throw new ApiException("Admin was not found."); //not found
+
+        if (checkAdmin(adminId) == -2)
+            throw new ApiException("This user is not an admin"); //not admin
+
         return userRepository.findAll();
     }
 
@@ -23,13 +30,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public Integer updateUser(Integer userId, Integer id, User user) {
+    public void updateUser(Integer userId, Integer id, User user) {
         if (!userId.equals(id) && checkAdmin(userId) != 1)
-            return -1; //not the same user or admin
+            throw new ApiException("Not allowed to update this account"); //not the same user or admin
 
         User oldUser = userRepository.findUserById(id);
         if (oldUser == null)
-            return -2; //not found
+            throw new ApiException("User was not found"); //not found
 
         oldUser.setFavoriteSportId(user.getFavoriteSportId());
         oldUser.setUsername(user.getUsername());
@@ -46,19 +53,17 @@ public class UserService {
         oldUser.setCurrentActivityId(oldUser.getCurrentActivityId());
 
         userRepository.save(oldUser);
-        return 1;
     }
 
-    public Integer deleteUser(Integer userId, Integer id) {
+    public void deleteUser(Integer userId, Integer id) {
         if (!userId.equals(id) && checkAdmin(userId) != 1)
-            return -1; //not the same user or admin
+            throw new ApiException("Not allowed to delete this account"); //not the same user or admin
 
         User user = userRepository.findUserById(id);
         if (user == null)
-            return -2; //not found
+            throw new ApiException("User was not found"); //not found
 
         userRepository.delete(user);
-        return 1;
     }
 
 

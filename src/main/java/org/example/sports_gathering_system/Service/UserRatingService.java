@@ -1,10 +1,13 @@
 package org.example.sports_gathering_system.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sports_gathering_system.Api.ApiException;
+import org.example.sports_gathering_system.Api.ApiResponse;
 import org.example.sports_gathering_system.Model.UserRating;
 import org.example.sports_gathering_system.Repository.UserActivityRepository;
 import org.example.sports_gathering_system.Repository.UserRatingRepository;
 import org.example.sports_gathering_system.Repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,19 +21,25 @@ public class UserRatingService {
     private final UserActivityRepository userActivityRepository;
     private final UserRepository userRepository;
 
-    public List<UserRating> getAllRatings() { //admin only
+    public List<UserRating> getAllRatings(Integer adminId) { //admin only
+        Integer check = checkAdmin(adminId);
+        if (check == -1)
+            throw new ApiException("Admin was not found");
+        if (check == -2)
+            throw new ApiException("This user is not an admin");
+
         return userRatingRepository.findAll();
     }
 
-    public Integer addRating(UserRating rating) {
+    public void addRating(UserRating rating) {
         if (userRepository.findUserById(rating.getRaterId()) == null)
-            return -1; //rater not found
+            throw new ApiException("User was not found"); //rater not found
 
         if (userRepository.findUserById(rating.getTargetUserId()) == null)
-            return -2; //target not found
+            throw new ApiException("Rated User was not found"); //target not found
 
         if (rating.getRaterId().equals(rating.getTargetUserId()))
-            return -3; //cannot rate yourself
+            throw new ApiException("Cannot Rate yourself"); //cannot rate yourself
 
         UserRating existing = userRatingRepository
                 .findUserRatingByRaterIdAndTargetUserIdAndActivityId(
@@ -40,22 +49,21 @@ public class UserRatingService {
                 );
 
         if (existing != null)
-            return -4; // duplicate rating
+            throw new ApiException("Duplicate rating exists"); //duplicate rating
 
         rating.setDate(LocalDateTime.now());
         userRatingRepository.save(rating);
-        return 1;
     }
 
-    public Integer updateRating(Integer requesterId, Integer id, UserRating rating) {
+    public void updateRating(Integer requesterId, Integer id, UserRating rating) {
         UserRating old = userRatingRepository.findUserRatingById(id);
         if (old == null)
-            return -1; //rating not found
+            throw new ApiException("Rating was not found"); //rating not found
 
         boolean isRater = requesterId.equals(old.getRaterId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
         if (!isRater && !isAdmin)
-            return -2; //unauthorized
+            throw new ApiException("Not allowed to update this rating"); //unauthorized
 
         UserRating existing = userRatingRepository
                 .findUserRatingByRaterIdAndTargetUserIdAndActivityId(
@@ -64,7 +72,7 @@ public class UserRatingService {
                         rating.getActivityId()
                 );
         if (existing != null)
-            return -3; //duplicate rating
+            throw new ApiException("Duplicate rating exists"); //duplicate rating
 
         old.setTargetUserId(rating.getTargetUserId());
         old.setActivityId(rating.getActivityId());
@@ -73,23 +81,20 @@ public class UserRatingService {
         old.setDate(LocalDateTime.now());
 
         userRatingRepository.save(old);
-        return 1;
     }
 
-    public Integer deleteRating(Integer requesterId, Integer id) {
+    public void deleteRating(Integer requesterId, Integer id) {
         UserRating rating = userRatingRepository.findUserRatingById(id);
         if (rating == null)
-            return -2; //not found
+            throw new ApiException("Rating was not found"); //not found
 
         boolean isRater = requesterId.equals(rating.getRaterId());
         boolean isAdmin = (checkAdmin(requesterId) == 1);
         if (!isRater && !isAdmin)
-            return -1; //unauthorized
+            throw new ApiException("Not allowed to delete this rating"); //unauthorized
 
         userRatingRepository.delete(rating);
-        return 1;
     }
-
 
 
     public Integer checkAdmin(Integer userId) {
@@ -108,19 +113,19 @@ public class UserRatingService {
 
     public List<UserRating> getRatingsByRater(Integer raterId) {
         if (userRepository.findUserById(raterId) == null)
-            return null; //not found
+            throw new ApiException("User was not found."); //not found
         return userRatingRepository.findUserRatingsByRaterId(raterId);
     }
 
     public List<UserRating> getRatingsByTarget(Integer targetUserId) {
         if (userRepository.findUserById(targetUserId) == null)
-            return null; //not found
+            throw new ApiException("User was not found."); //not found
         return userRatingRepository.findUserRatingsByTargetUserId(targetUserId);
     }
 
     public List<UserRating> getRatingsByActivity(Integer activityId) {
         if (userActivityRepository.findUserActivityById(activityId) == null)
-            return null;
+            throw new ApiException("Activity was not found."); //not found
         return userRatingRepository.findUserRatingsByActivityId(activityId);
     }
 
