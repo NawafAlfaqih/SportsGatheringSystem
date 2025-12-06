@@ -39,4 +39,9 @@ public class UserController {
         userService.deleteUser(userId, id);
         return ResponseEntity.status(200).body(new ApiResponse("User deleted successfully "));
     }
+
+    @GetMapping("/ask-ai/user-id/{userId}")
+    public ResponseEntity<?> askAi(@PathVariable Integer userId, @RequestBody String prompt) {
+        return ResponseEntity.status(200).body(userService.askAi(userId,prompt));
+    }
 }

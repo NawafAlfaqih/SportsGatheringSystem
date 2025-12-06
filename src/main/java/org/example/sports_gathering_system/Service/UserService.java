@@ -13,6 +13,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final AiService aiService;
 
     public List<User> getAllUsers(Integer adminId) {
         if (checkAdmin(adminId) == -1)
@@ -64,6 +65,28 @@ public class UserService {
             throw new ApiException("User was not found"); //not found
 
         userRepository.delete(user);
+    }
+
+    public String bodyInformation(User user) {
+        return "Height: " + user.getHeight()
+                + " Weight: " + user.getWeight()
+                + " Age: " + user.getAge()
+                + " Gender: " + user.getGender()
+                + " Bio: " + user.getBio();
+    }
+
+    public String askAi(Integer userID, String moodPrompt) {
+        User user = userRepository.findUserById(userID);
+        if (user == null)
+            throw new ApiException("User was not found");
+
+        String prompt = """
+                recommend to the user a sport to play
+                Based on the Body Information %s given by the user %s
+                and the user's mood %s.
+                """.formatted(bodyInformation(user), user.getUsername(), moodPrompt);
+
+        return aiService.chat(prompt);
     }
 
 
